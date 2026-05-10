@@ -29,6 +29,7 @@ export default function RearrangeBoard() {
     options: AceRole[][];
     pendingCards: CardInSet[];
     targetSetId: string | 'new';
+    targetOwnerId: string;
   } | null>(null);
 
   useEffect(() => {
@@ -64,12 +65,13 @@ export default function RearrangeBoard() {
     setSelectedHandIds(new Set());
   }
 
-  function handleAddToSet(targetSetId: string | 'new') {
+  function handleAddToSet(targetSetId: string | 'new', ownerId?: string) {
     if (selectedHandIds.size === 0) {
       toast('Select cards from your hand first');
       return;
     }
     const cards = workingHand.filter((c) => selectedHandIds.has(c.id));
+    const resolvedOwnerId = ownerId ?? human.id;
 
     if (targetSetId !== 'new') {
       const targetSet = workingTable.find((s) => s.id === targetSetId);
@@ -85,6 +87,7 @@ export default function RearrangeBoard() {
             options: infer.ambiguous,
             pendingCards: cards.map((c) => ({ card: c })),
             targetSetId,
+            targetOwnerId: resolvedOwnerId,
           });
           return;
         }
@@ -107,16 +110,17 @@ export default function RearrangeBoard() {
             options: infer.ambiguous,
             pendingCards: cards.map((c) => ({ card: c })),
             targetSetId: 'new',
+            targetOwnerId: resolvedOwnerId,
           });
           return;
         }
         if (infer.ok && infer.cards) {
-          createSetFromHand(infer.cards);
+          createSetFromHand(infer.cards, resolvedOwnerId);
           setSelectedHandIds(new Set());
           return;
         }
       }
-      createSetFromHand(cards.map((c) => ({ card: c })));
+      createSetFromHand(cards.map((c) => ({ card: c })), resolvedOwnerId);
     }
 
     setSelectedHandIds(new Set());
@@ -130,7 +134,7 @@ export default function RearrangeBoard() {
       const cardsWithRole = acePicker.pendingCards.map((c) =>
         c.card.rank === 'A' ? { ...c, aceRole: role } : c,
       );
-      createSetFromHand(cardsWithRole);
+      createSetFromHand(cardsWithRole, acePicker.targetOwnerId);
     } else {
       const pendingWithRole = acePicker.pendingCards.map((c) =>
         c.card.rank === 'A' ? { ...c, aceRole: role } : c,
@@ -262,12 +266,12 @@ export default function RearrangeBoard() {
                 })}
 
                 {/* New set drop target */}
-                {player.id === human.id && selectedHandIds.size > 0 && (
+                {selectedHandIds.size > 0 && (
                   <button
                     type="button"
-                    onClick={() => handleAddToSet('new')}
+                    onClick={() => handleAddToSet('new', player.id)}
                     className="w-[52px] h-[76px] border-2 border-dashed border-[#6366F1] rounded-lg flex items-center justify-center text-[#6366F1] text-xl hover:bg-[#EEF2FF]"
-                    title="Create new set from selected cards"
+                    title={player.id === human.id ? 'Create new set from selected cards' : `Create new set for ${player.name}`}
                   >
                     +
                   </button>

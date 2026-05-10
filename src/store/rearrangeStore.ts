@@ -4,6 +4,13 @@ import { isValidSet } from '../engine/sets';
 import { canCommitRearrange } from '../engine/rearrange';
 import { newId } from '../lib/id';
 
+function inferKind(cards: CardInSet[]): CardSet['kind'] {
+  const nonAces = cards.filter((ci) => ci.card.rank !== 'A');
+  return nonAces.length > 0 && new Set(nonAces.map((ci) => ci.card.suit)).size === 1
+    ? 'run'
+    : 'group';
+}
+
 interface RearrangeStore {
   workingTable: CardSet[];
   workingHand: Card[];
@@ -13,7 +20,7 @@ interface RearrangeStore {
   initRearrange: (state: GameState) => void;
   moveCardToSet: (cardId: string, targetSetId: string | 'new', fromSetId: string | 'hand') => void;
   moveCardToHand: (cardId: string, fromSetId: string) => void;
-  createSetFromHand: (cards: CardInSet[]) => string;
+  createSetFromHand: (cards: CardInSet[], ownerId?: string) => string;
   updateSetCards: (setId: string, allCards: CardInSet[], removedHandCardIds: string[]) => void;
   getValidationErrors: (snapshot: GameState, activePlayerId: string) => string[];
   buildCommitPayload: () => { nextTable: CardSet[]; nextHand: CardInSet[] };
@@ -62,11 +69,12 @@ export const useRearrangeStore = create<RearrangeStore>((set, get) => ({
 
     if (targetSetId === 'new') {
       const humanId = get().snapshot!.players[0]!.id;
+      const newCards = [cardInSet];
       const newSet: CardSet = {
         id: newId('set'),
         ownerId: humanId,
-        kind: 'group',
-        cards: [cardInSet],
+        kind: inferKind(newCards),
+        cards: newCards,
       };
       nextTable = [...nextTable, newSet];
     } else {
@@ -80,15 +88,15 @@ export const useRearrangeStore = create<RearrangeStore>((set, get) => ({
     set({ workingTable: nextTable, workingHand: nextHand });
   },
 
-  createSetFromHand(cards) {
+  createSetFromHand(cards, ownerId?) {
     const { workingTable, workingHand, snapshot } = get();
-    const humanId = snapshot!.players[0]!.id;
+    const resolvedOwnerId = ownerId ?? snapshot!.players[0]!.id;
     const cardIds = new Set(cards.map((ci) => ci.card.id));
     const id = newId('set');
     const newSet: CardSet = {
       id,
-      ownerId: humanId,
-      kind: 'group',
+      ownerId: resolvedOwnerId,
+      kind: inferKind(cards),
       cards,
     };
     set({
@@ -103,7 +111,7 @@ export const useRearrangeStore = create<RearrangeStore>((set, get) => ({
     const drain = new Set(removedHandCardIds);
     set({
       workingTable: workingTable.map((s) =>
-        s.id === setId ? { ...s, cards: allCards } : s,
+        s.id === setId ? { ...s, kind: inferKind(allCards), cards: allCards } : s,
       ),
       workingHand: workingHand.filter((c) => !drain.has(c.id)),
     });
