@@ -5,7 +5,6 @@ import { isValidSet } from '../engine/sets';
 import type { CardSet, CardInSet } from '../engine/types';
 import CardView from './CardView';
 import { cn } from '../lib/classnames';
-import { newId } from '../lib/id';
 import { inferAceRoles } from '../engine/sets';
 import AcePicker from './AcePicker';
 import type { AceRole } from '../engine/types';
@@ -18,6 +17,7 @@ export default function RearrangeBoard() {
     initRearrange,
     moveCardToSet,
     moveCardToHand,
+    createSetFromHand,
     getValidationErrors,
     buildCommitPayload,
   } = useRearrangeStore();
@@ -105,14 +105,7 @@ export default function RearrangeBoard() {
           return;
         }
       }
-      const firstCard = cards[0];
-      if (!firstCard) return;
-      moveCardToSet(firstCard.id, 'new', 'hand');
-      const newSet = workingTable[workingTable.length - 1];
-      if (!newSet) return;
-      for (let i = 1; i < cards.length; i++) {
-        moveCardToSet(cards[i]!.id, newSet.id, 'hand');
-      }
+      createSetFromHand(cards.map((c) => ({ card: c })));
     }
 
     setSelectedHandIds(new Set());
@@ -123,23 +116,10 @@ export default function RearrangeBoard() {
     setAcePicker(null);
 
     if (acePicker.targetSetId === 'new') {
-      const firstCard = acePicker.pendingCards[0];
-      if (!firstCard) return;
-      const withRole: CardInSet = firstCard.card.rank === 'A'
-        ? { ...firstCard, aceRole: role }
-        : firstCard;
-
-      const tempSetId = newId('set');
-      useRearrangeStore.setState((s) => ({
-        workingTable: [
-          ...s.workingTable,
-          { id: tempSetId, ownerId: human.id, kind: 'group', cards: [withRole] },
-        ],
-        workingHand: s.workingHand.filter((c) => c.id !== firstCard.card.id),
-      }));
-      for (let i = 1; i < acePicker.pendingCards.length; i++) {
-        moveCardToSet(acePicker.pendingCards[i]!.card.id, tempSetId, 'hand');
-      }
+      const cardsWithRole = acePicker.pendingCards.map((c) =>
+        c.card.rank === 'A' ? { ...c, aceRole: role } : c,
+      );
+      createSetFromHand(cardsWithRole);
     } else {
       for (const pending of acePicker.pendingCards) {
         const withRole: CardInSet = pending.card.rank === 'A'
