@@ -179,7 +179,7 @@ export default function GameBoard() {
             <span className="text-[10px] uppercase tracking-wide text-[#71717A] font-medium mb-1">Discard</span>
             <DiscardPile
               topCard={state.discardPile[0] ?? null}
-              count={state.discardPile.length}
+              pile={state.discardPile}
               onClick={handleTakeDiscard}
               disabled={state.phase !== 'awaitingDraw' || !isHumanTurn || state.discardPile.length === 0}
             />
