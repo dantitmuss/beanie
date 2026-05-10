@@ -21,7 +21,7 @@ export default function DiscardPile({ topCard, count, onClick, disabled = false 
         {topCard ? (
           <CardView cardInSet={{ card: topCard }} />
         ) : (
-          <div className="w-14 h-20 rounded-[8px] border-2 border-dashed border-[#E4E4E7] flex items-center justify-center">
+          <div className="w-[72px] h-[104px] rounded-[8px] border-2 border-dashed border-[#E4E4E7] flex items-center justify-center">
             <span className="text-[#71717A] text-xs">Empty</span>
           </div>
         )}

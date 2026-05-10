@@ -26,11 +26,11 @@ export default function CardView({
   const displaySuit = card.suit;
   const isRed = displaySuit === '♥' || displaySuit === '♦';
 
-  const w = compact ? 'w-10' : 'w-14';
-  const h = compact ? 'h-14' : 'h-20';
-  const rankSize = compact ? 'text-[11px]' : 'text-sm';
-  const suitSize = compact ? 'text-sm' : 'text-xl';
-  const padding = compact ? 'p-[3px]' : 'p-1';
+  const w = compact ? 'w-[52px]' : 'w-[72px]';
+  const h = compact ? 'h-[76px]' : 'h-[104px]';
+  const rankSize = compact ? 'text-xs' : 'text-base';
+  const suitSize = compact ? 'text-[24px]' : 'text-[36px]';
+  const padding = compact ? 'p-1' : 'p-1.5';
 
   const label = ariaLabel
     ?? (aceRole
@@ -66,7 +66,7 @@ export default function CardView({
 
       {aceRole && (
         <span
-          className="absolute bottom-0.5 left-0 right-0 text-center text-[8px] text-[#71717A] leading-none truncate px-0.5"
+          className={`absolute bottom-0.5 left-0 right-0 text-center ${compact ? 'text-[9px]' : 'text-[10px]'} text-[#71717A] leading-none truncate px-0.5`}
           aria-hidden="true"
         >
           →{aceRole.rank}{aceRole.suit}

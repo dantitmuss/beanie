@@ -255,7 +255,7 @@ export default function RearrangeBoard() {
                           <button
                             type="button"
                             onClick={() => handleAddToSet(set.id)}
-                            className="w-8 h-14 border-2 border-dashed border-[#6366F1] rounded-lg flex items-center justify-center text-[#6366F1] text-xs hover:bg-[#EEF2FF]"
+                            className="w-8 h-[76px] border-2 border-dashed border-[#6366F1] rounded-lg flex items-center justify-center text-[#6366F1] text-xs hover:bg-[#EEF2FF]"
                             title="Add selected cards here"
                           >
                             +
@@ -278,7 +278,7 @@ export default function RearrangeBoard() {
                   <button
                     type="button"
                     onClick={() => handleAddToSet('new')}
-                    className="w-14 h-14 border-2 border-dashed border-[#6366F1] rounded-lg flex items-center justify-center text-[#6366F1] text-xl hover:bg-[#EEF2FF]"
+                    className="w-[52px] h-[76px] border-2 border-dashed border-[#6366F1] rounded-lg flex items-center justify-center text-[#6366F1] text-xl hover:bg-[#EEF2FF]"
                     title="Create new set from selected cards"
                   >
                     +
@@ -310,7 +310,7 @@ export default function RearrangeBoard() {
             </button>
           )}
         </div>
-        <div className="flex flex-row gap-2 overflow-x-auto pb-2 min-h-[72px]">
+        <div className="flex flex-row gap-2 overflow-x-auto pb-2 min-h-[90px]">
           {workingHand.map((card) => (
             <button
               key={card.id}

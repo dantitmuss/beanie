@@ -12,7 +12,7 @@ interface Props {
 export default function Hand({ cards, selectedIds, onCardClick }: Props) {
   return (
     <div
-      className="flex flex-row items-end gap-2 overflow-x-auto px-4 py-2 min-h-[96px]"
+      className="flex flex-row items-end gap-2 overflow-x-auto px-4 py-2 min-h-[120px]"
       role="list"
       aria-label="Your hand"
     >
