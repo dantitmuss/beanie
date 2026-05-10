@@ -51,6 +51,13 @@ server {
 
 Add HTTPS with Let's Encrypt (`certbot --nginx`) before pointing real users at it.
 
+## What's new in V2
+
+- **Bigger cards** — suit glyphs scaled up ~30% so they're readable on mobile without zooming.
+- **Hand reorder** — long-press (mobile) or drag (desktop) any card in your hand to rearrange it. Order persists across engine updates within a game; tap-to-select still works normally.
+- **Discard pile viewer** — tap the card count below the discard pile to open a scrollable modal showing all discarded cards, most recent first.
+- **Rearrange bug fix** — creating a new set from multiple selected hand cards in rearrange mode now places all cards correctly into one set (previously only the first card was placed; the rest silently misrouted).
+
 ## Tech stack
 
 - **Vite + React 18 + TypeScript** (strict)
