@@ -8,6 +8,7 @@ interface GameStore {
   state: GameState | null;
   toastMessage: string | null;
   selectedHandCardIds: Set<string>;
+  handOrder: string[];
   aiRunning: boolean;
 
   startGame: (playerCount: number) => void;
@@ -17,22 +18,32 @@ interface GameStore {
   dismissToast: () => void;
   toggleHandCardSelection: (cardId: string) => void;
   clearSelection: () => void;
+  reorderHand: (activeId: string, overId: string) => void;
+  reconcileHandOrder: (hand: { id: string }[]) => void;
+}
+
+function reconcile(handOrder: string[], hand: { id: string }[]): string[] {
+  const handIds = new Set(hand.map((c) => c.id));
+  const kept = handOrder.filter((id) => handIds.has(id));
+  const newOnes = hand.map((c) => c.id).filter((id) => !kept.includes(id));
+  return [...kept, ...newOnes];
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
   state: null,
   toastMessage: null,
   selectedHandCardIds: new Set(),
+  handOrder: [],
   aiRunning: false,
 
   startGame(playerCount) {
     const names = ['You', 'Aria', 'Bo', 'Cleo'];
     const state = createInitialState(names.slice(0, playerCount), Date.now());
-    set({ state, selectedHandCardIds: new Set(), toastMessage: null, aiRunning: false });
+    set({ state, selectedHandCardIds: new Set(), toastMessage: null, aiRunning: false, handOrder: [] });
   },
 
   resetToTitle() {
-    set({ state: null, selectedHandCardIds: new Set(), toastMessage: null, aiRunning: false });
+    set({ state: null, selectedHandCardIds: new Set(), toastMessage: null, aiRunning: false, handOrder: [] });
   },
 
   dispatch(action) {
@@ -68,6 +79,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   clearSelection() {
     set({ selectedHandCardIds: new Set() });
+  },
+
+  reorderHand(activeId, overId) {
+    const { handOrder } = get();
+    const from = handOrder.indexOf(activeId);
+    const to = handOrder.indexOf(overId);
+    if (from === -1 || to === -1 || from === to) return;
+    const next = [...handOrder];
+    next.splice(from, 1);
+    next.splice(to, 0, activeId);
+    set({ handOrder: next });
+  },
+
+  reconcileHandOrder(hand) {
+    const { handOrder } = get();
+    set({ handOrder: reconcile(handOrder, hand) });
   },
 }));
 
