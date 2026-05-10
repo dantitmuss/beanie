@@ -14,6 +14,7 @@ interface RearrangeStore {
   moveCardToSet: (cardId: string, targetSetId: string | 'new', fromSetId: string | 'hand') => void;
   moveCardToHand: (cardId: string, fromSetId: string) => void;
   createSetFromHand: (cards: CardInSet[]) => string;
+  updateSetCards: (setId: string, allCards: CardInSet[], removedHandCardIds: string[]) => void;
   getValidationErrors: (snapshot: GameState, activePlayerId: string) => string[];
   buildCommitPayload: () => { nextTable: CardSet[]; nextHand: CardInSet[] };
   reset: () => void;
@@ -95,6 +96,17 @@ export const useRearrangeStore = create<RearrangeStore>((set, get) => ({
       workingHand: workingHand.filter((c) => !cardIds.has(c.id)),
     });
     return id;
+  },
+
+  updateSetCards(setId, allCards, removedHandCardIds) {
+    const { workingTable, workingHand } = get();
+    const drain = new Set(removedHandCardIds);
+    set({
+      workingTable: workingTable.map((s) =>
+        s.id === setId ? { ...s, cards: allCards } : s,
+      ),
+      workingHand: workingHand.filter((c) => !drain.has(c.id)),
+    });
   },
 
   moveCardToHand(cardId, fromSetId) {

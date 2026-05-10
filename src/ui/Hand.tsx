@@ -34,6 +34,7 @@ function SortableCard({ card, selected, onCardClick }: SortableCardProps) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    touchAction: 'none',
   };
 
   return (

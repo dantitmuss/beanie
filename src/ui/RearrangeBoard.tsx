@@ -18,6 +18,7 @@ export default function RearrangeBoard() {
     moveCardToSet,
     moveCardToHand,
     createSetFromHand,
+    updateSetCards,
     getValidationErrors,
     buildCommitPayload,
   } = useRearrangeStore();
@@ -87,6 +88,11 @@ export default function RearrangeBoard() {
           });
           return;
         }
+        if (infer.ok && infer.cards) {
+          updateSetCards(targetSetId, infer.cards, cards.map((c) => c.id));
+          setSelectedHandIds(new Set());
+          return;
+        }
       }
       for (const card of cards) {
         moveCardToSet(card.id, targetSetId, 'hand');
@@ -102,6 +108,11 @@ export default function RearrangeBoard() {
             pendingCards: cards.map((c) => ({ card: c })),
             targetSetId: 'new',
           });
+          return;
+        }
+        if (infer.ok && infer.cards) {
+          createSetFromHand(infer.cards);
+          setSelectedHandIds(new Set());
           return;
         }
       }
@@ -121,19 +132,16 @@ export default function RearrangeBoard() {
       );
       createSetFromHand(cardsWithRole);
     } else {
-      for (const pending of acePicker.pendingCards) {
-        const withRole: CardInSet = pending.card.rank === 'A'
-          ? { ...pending, aceRole: role }
-          : pending;
-        useRearrangeStore.setState((s) => ({
-          workingTable: s.workingTable.map((set) =>
-            set.id === acePicker.targetSetId
-              ? { ...set, cards: [...set.cards, withRole] }
-              : set,
-          ),
-          workingHand: s.workingHand.filter((c) => c.id !== pending.card.id),
-        }));
-      }
+      const pendingWithRole = acePicker.pendingCards.map((c) =>
+        c.card.rank === 'A' ? { ...c, aceRole: role } : c,
+      );
+      const targetSet = workingTable.find((s) => s.id === acePicker.targetSetId);
+      if (!targetSet) return;
+      updateSetCards(
+        acePicker.targetSetId,
+        [...targetSet.cards, ...pendingWithRole],
+        acePicker.pendingCards.map((c) => c.card.id),
+      );
     }
     setSelectedHandIds(new Set());
   }
