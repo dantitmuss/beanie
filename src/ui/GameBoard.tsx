@@ -10,6 +10,7 @@ import RulesModal from './RulesModal';
 import AcePicker from './AcePicker';
 import Toast from './Toast';
 import RearrangeBoard from './RearrangeBoard';
+import HandExpandModal from './HandExpandModal';
 import { useGameStore } from '../store/gameStore';
 import { inferAceRoles, isValidSet } from '../engine/sets';
 import type { AceRole, CardInSet, CardSet } from '../engine/types';
@@ -29,6 +30,7 @@ export default function GameBoard() {
   } = useGameStore();
 
   const [showRules, setShowRules] = useState(false);
+  const [showHandExpand, setShowHandExpand] = useState(false);
   const [acePicker, setAcePicker] = useState<{
     options: AceRole[][];
     pendingCards: CardInSet[];
@@ -158,7 +160,7 @@ export default function GameBoard() {
                     )}
                     <span className="text-xs font-medium text-[#71717A]">{opp.name}</span>
                   </div>
-                  <OpponentArea player={opp} sets={oppSets} />
+                  <OpponentArea player={opp} sets={oppSets} compact />
                 </div>
               );
             })}
@@ -208,7 +210,17 @@ export default function GameBoard() {
             Your hand
             {isHumanTurn && <span className="ml-2 text-[#6366F1]">● your turn</span>}
           </span>
-          <span className="text-xs text-[#71717A]">{human.hand.length} cards</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[#71717A]">{human.hand.length} cards</span>
+            <button
+              type="button"
+              onClick={() => setShowHandExpand(true)}
+              className="text-[#71717A] hover:text-[#0A0A0A] text-base leading-none"
+              aria-label="Expand hand view"
+            >
+              ⤢
+            </button>
+          </div>
         </div>
         <Hand
           cards={human.hand}
@@ -257,6 +269,14 @@ export default function GameBoard() {
 
       {toastMessage && <Toast message={toastMessage} onDismiss={dismissToast} />}
       {showRules && <RulesModal onClose={() => setShowRules(false)} />}
+      {showHandExpand && (
+        <HandExpandModal
+          cards={human.hand}
+          selectedIds={selectedHandCardIds}
+          onCardClick={handleHandCardClick}
+          onClose={() => setShowHandExpand(false)}
+        />
+      )}
       {acePicker && (
         <AcePicker
           options={acePicker.options.map((opts) => opts[0]!)}
