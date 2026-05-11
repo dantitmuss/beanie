@@ -7,6 +7,7 @@
     @apply bg-[#FAFAFA] text-[#0A0A0A] font-sans;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
   }
 
   * {

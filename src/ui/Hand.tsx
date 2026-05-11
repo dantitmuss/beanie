@@ -34,11 +34,10 @@ function SortableCard({ card, selected, onCardClick }: SortableCardProps) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    touchAction: 'none',
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} role="listitem">
+    <div ref={setNodeRef} style={style} {...attributes} role="listitem" className="flex flex-col items-center gap-0.5">
       <CardView
         cardInSet={{ card }}
         selected={selected}
@@ -46,6 +45,20 @@ function SortableCard({ card, selected, onCardClick }: SortableCardProps) {
         dragging={isDragging}
         aria-label={`${card.rank}${card.suit}, in hand`}
       />
+      <div
+        {...listeners}
+        style={{ touchAction: 'none' }}
+        aria-label="Drag to reorder"
+        className="w-full flex justify-center items-center h-4 rounded-b cursor-grab active:cursor-grabbing"
+      >
+        <div className="flex gap-[3px]">
+          <span className="block w-[3px] h-[3px] rounded-full bg-[#D4D4D8]" />
+          <span className="block w-[3px] h-[3px] rounded-full bg-[#D4D4D8]" />
+          <span className="block w-[3px] h-[3px] rounded-full bg-[#D4D4D8]" />
+          <span className="block w-[3px] h-[3px] rounded-full bg-[#D4D4D8]" />
+          <span className="block w-[3px] h-[3px] rounded-full bg-[#D4D4D8]" />
+        </div>
+      </div>
     </div>
   );
 }
