@@ -1,6 +1,12 @@
 import CardView from './CardView';
-import type { CardSet } from '../engine/types';
+import type { CardSet, Rank } from '../engine/types';
+import { rankIndex } from '../engine/sets';
 import { cn } from '../lib/classnames';
+
+function effectiveRankIndex(c: CardSet['cards'][number]): number {
+  if (c.card.rank !== 'A') return rankIndex(c.card.rank as Exclude<Rank, 'A'>);
+  return c.aceRole ? rankIndex(c.aceRole.rank) : -1;
+}
 
 interface Props {
   set: CardSet;
@@ -34,7 +40,7 @@ export default function TableSet({
         role="group"
         aria-label={`${set.kind} set with ${set.cards.length} cards`}
       >
-        {set.cards.map((c) => (
+        {(set.kind === 'run' ? [...set.cards].sort((a, b) => effectiveRankIndex(a) - effectiveRankIndex(b)) : set.cards).map((c) => (
           <CardView
             key={c.card.id}
             cardInSet={c}

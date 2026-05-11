@@ -10,7 +10,7 @@ import AcePicker from './AcePicker';
 import type { AceRole } from '../engine/types';
 
 export default function RearrangeBoard() {
-  const { state, dispatch, toast } = useGameStore();
+  const { state, dispatch, toast, clearSelection } = useGameStore();
   const {
     workingTable,
     workingHand,
@@ -174,6 +174,7 @@ export default function RearrangeBoard() {
   function handleCommit() {
     const { nextTable, nextHand } = buildCommitPayload();
     dispatch({ type: 'COMMIT_REARRANGE', nextTable, nextHand });
+    clearSelection();
   }
 
   function handleCancel() {

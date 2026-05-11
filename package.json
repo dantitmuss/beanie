@@ -17,6 +17,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "tinyrainbow": "^3.1.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
@@ -27,6 +28,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "cssesc": "^3.0.0",
     "eslint": "^9.15.0",
     "jsdom": "^25.0.1",
     "postcss": "^8.4.49",
