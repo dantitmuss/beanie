@@ -1,0 +1,36 @@
+I want to create a card game that I can play on the browser.
+
+Here are the rules of the game.
+
+The game uses a standard deck of 52 cards. The aim of the game is to get rid of all of your cards by ending your turn. It is loosely based on Gin Rummy, where you start with 9 cards and then create sets of cards.
+
+Shuffle the deck and deal out 9 cards to each player (usually played with between 2-4 people). Then place the remaining cards face down in the middle of the table. This is the draw pile. Turn over one card and place it face up besides the draw pile. This is the discard pile.
+
+The player to the left of the dealer takes their turn first, then turns continue clockwise.
+
+STARTING AND ENDING A TURN
+To start a turn, a player takes either ONE card from the draw pile or ALL the cards from the discard pile. A player ends their turn by placing one card on the discard pile.
+
+If at any time a the draw pile runs out, the discard pile is shuffled and then turned face down to become the draw pile. Turn over one card and place it face up besides the draw pile. This is the discard pile.
+
+WITHIN TURN
+When a player is within their turn, they can place cards on the table in a set, which is a minimum of four cards (with no maximum).
+
+A set can either be a set of the same number (the fours of CHSD, for example), or a run of the same suit (the 3456 of Hearts, for example). The runs cannot loop round (for example, KA23 is not a valid run).
+
+The first set MUST be a set of four cards. Once a player has placed down their first set of four (the opening set), they may create sets of at least three instead of four. There is no maximum number of cards.They may also rearrange the board. 
+
+Aces are WILD. This means that they can take on any value and suit. However, they cannot be a value of 1 (meaning that a run can't be A234).
+
+REARRANGING THE BOARD
+Once a player has placed an opening set, they may rearrange the board as they like, an unlimited number of times. This means that they may pick up into their hand any number of sets, from any number of players. They may then place as many sets as they like on any number of players.
+
+No cards may be left on the table if they are not in a set - any remaining cards must be taken into the hand of the player who's turn it is.
+
+At the end of a players turn, any player that had a set of four MUST be left with a set of four to act as their "opening set". However, this doesn't need to be any particular/their set - any set of four cards may be placed in front of them.
+
+A player may not rearrange the board unless they have created an opening set.
+
+
+WINNING THE GAME
+A player wins the game by ending their turn (placing a card down on the discard pile) and having no cards remaining. This ends the game.

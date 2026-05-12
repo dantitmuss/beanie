@@ -1,0 +1,84 @@
+Beanie — future ideas / parking lot
+====================================
+
+Things we've explicitly deferred from v1 / v2 / v3. Add to this file
+freely as ideas come up. Don't lose ideas to the void.
+
+Deferred from V2 (see plan-v2.md §6)
+------------------------------------
+- Hand-order persistence across sessions (localStorage).
+- Full drag-to-play / drag-to-discard (V2 only does hand reorder).
+- Per-card "discarded N turns ago" timestamp in the discard viewer.
+- Tutorial / onboarding pass for the new V2 interactions.
+
+Deferred from V3 (see plan-v3.md §10)
+-------------------------------------
+- The actual PyTorch RL training run — V3 ships scaffolding only.
+- Per-seat AI personalities / mixed difficulties in one game.
+- Short difficulty hint blurbs on the title screen.
+
+AI
+---
+- Easy difficulty: never rearranges, always draws (never takes discard),
+  random discard from least-useful third of hand.
+- Hard difficulty: exhaustive rearrange search up to depth N, plays Ace
+  replacement aggressively, tracks discard pile content as memory of
+  what opponents have likely picked up, light card-counting.
+- Personality variants per AI seat (e.g. one is risk-averse, one hoards
+  Aces) so multi-AI games feel different.
+
+Multiplayer
+-----------
+- Real-time multiplayer over WebSocket. Would need a small Node server,
+  rooms with codes, per-seat authentication (just nicknames). Big
+  scope-add — own milestone.
+- Pass-and-play on a single device for in-person multiplayer. Cheaper
+  than online multiplayer; would need a "hide hand" / "tap to reveal"
+  screen between turns.
+
+Persistence / progression
+-------------------------
+- localStorage win/loss stats, longest-game, fastest-win.
+- Resume mid-game on reload (serialise GameState).
+- Optional account / cloud sync — only worth it if multiplayer happens.
+- Best-of-N round scoring across a session.
+
+UX
+--
+- Sound effects: card slide, draw, discard, win chime. Volume slider.
+- Card flip / slide animations beyond the bare minimum.
+- Dark mode (Tailwind class strategy already supports it; just add a
+  toggle and a few colour overrides).
+- Tutorial mode with scripted opponents and tooltip overlays.
+- Spectator / replay mode (engine is deterministic; serialise the
+  action log + seed and replay).
+- Undo last action within a turn (already trivial — we keep snapshots
+  for rearrange; extend to all actions).
+- Customisable card backs / theme packs.
+- Keyboard shortcuts for power users (D = draw, T = take discard,
+  Space = end turn, R = rearrange).
+
+Rules variants
+--------------
+- Configurable opening-set size (3, 4, or 5).
+- Configurable starting hand size.
+- "Aces high" toggle so Ace can represent 1 or 14.
+- Penalty scoring (count cards left in hand at end) for multi-round
+  play.
+
+Accessibility
+-------------
+- High-contrast mode.
+- Colourblind-friendly suit indicators (shape on the corner of each
+  card, not just colour).
+- Screen-reader-friendly board narration.
+- Larger card / type sizes toggle.
+
+Hosting / ops
+-------------
+- HTTPS via Let's Encrypt.
+- Bundle size budget enforced in CI.
+- Lighthouse score target: 95+ on Performance / Accessibility / Best
+  Practices for the static page.
+- Optional analytics (privacy-respecting, e.g. Plausible) to see how
+  many games people are finishing.

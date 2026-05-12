@@ -59,6 +59,7 @@ export function computeAITurn(state: GameState, aiId: PlayerId): AIAction[] {
     if (toPlay.length > 0) {
       for (const set of toPlay) {
         const playCards = set.cards;
+        if (aiPlayer.hand.length === playCards.length) continue; // must keep 1 card to discard
         const ownedSet: CardSet = { ...set, id: newId('ai-set'), ownerId: aiId };
         const playAction = {
           type: 'PLAY_SET' as const,
@@ -81,7 +82,7 @@ export function computeAITurn(state: GameState, aiId: PlayerId): AIAction[] {
       const refreshedPlayer = current.players.find((p) => p.id === aiId)!;
       for (const card of refreshedPlayer.hand) {
         const ext = tryExtend(card, current.table);
-        if (ext) {
+        if (ext && refreshedPlayer.hand.length > 1) {
           const extSet = current.table.find((s) => s.id === ext.setId)!;
           const playAction = {
             type: 'PLAY_SET' as const,
@@ -108,12 +109,6 @@ export function computeAITurn(state: GameState, aiId: PlayerId): AIAction[] {
         }
       }
     }
-  }
-
-  // Step 3: Win check — if hand is empty after playing, the discard wins
-  const finalPlayer = current.players.find((p) => p.id === aiId)!;
-  if (finalPlayer.hand.length === 0 && finalPlayer.hasOpened) {
-    return actions; // DISCARD action isn't needed — hand is empty, win triggered
   }
 
   // Step 4: Discard
