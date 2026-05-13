@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { computeAITurn } from '../medium';
+import { makePolicy } from '../policy';
 import { findCandidateSets } from '../findSets';
+import { validateWeights } from '../weights/schema';
 import { createInitialState } from '../../engine/state';
 import { applyAction } from '../../engine/actions';
 import type { Card, GameState } from '../../engine/types';
+import mediumData from '../weights/medium.json';
+
+const mediumWeights = validateWeights(mediumData, 'medium');
+const policy = makePolicy('medium', mediumWeights);
 
 function card(rank: Card['rank'], suit: Card['suit']): Card {
   return { id: `${rank}${suit}`, rank, suit };
@@ -45,7 +50,7 @@ describe('findCandidateSets', () => {
   });
 });
 
-describe('computeAITurn', () => {
+describe('computeAITurn (medium policy)', () => {
   it('AI draws when no useful discard pile', () => {
     const state = makeState({
       phase: 'awaitingDraw',
@@ -53,7 +58,7 @@ describe('computeAITurn', () => {
       drawPile: [card('2', '♦')],
       discardPile: [card('9', '♠')],
     });
-    const actions = computeAITurn(state, state.players[1]!.id);
+    const actions = policy.computeTurn(state, state.players[1]!.id);
     expect(actions[0]?.type).toBe('DRAW');
   });
 
@@ -64,7 +69,7 @@ describe('computeAITurn', () => {
       drawPile: [card('2', '♦')],
       discardPile: [card('9', '♠')],
     });
-    const actions = computeAITurn(state, state.players[1]!.id);
+    const actions = policy.computeTurn(state, state.players[1]!.id);
     const last = actions[actions.length - 1];
     expect(last?.type).toBe('DISCARD');
   });
@@ -89,12 +94,11 @@ describe('computeAITurn', () => {
         },
       ],
     });
-    const actions = computeAITurn(state, 'player-1');
+    const actions = policy.computeTurn(state, 'player-1');
     expect(actions.some((a) => a.type === 'PLAY_SET')).toBe(true);
   });
 
   it('AI wins a deterministic short game', () => {
-    // Set up AI with a hand it can empty in one turn
     const state = makeState({
       phase: 'awaitingDraw',
       currentPlayerIdx: 1,
@@ -111,9 +115,8 @@ describe('computeAITurn', () => {
         },
       ],
     });
-    const actions = computeAITurn(state, 'player-1');
+    const actions = policy.computeTurn(state, 'player-1');
 
-    // Apply actions to reach the end state
     let s: GameState = state;
     for (const action of actions) {
       try { s = applyAction(s, action); } catch { break; }

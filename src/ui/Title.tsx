@@ -1,13 +1,21 @@
 import { useState } from 'react';
 import BeanieLogo from './BeanieLogo';
 import RulesModal from './RulesModal';
+import type { Difficulty } from '../ai/types';
+
+const DIFFICULTIES: { value: Difficulty; label: string }[] = [
+  { value: 'easy', label: 'Easy' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'hard', label: 'Hard' },
+];
 
 interface Props {
-  onStartGame: (playerCount: number) => void;
+  onStartGame: (playerCount: number, difficulty: Difficulty) => void;
 }
 
 export default function Title({ onStartGame }: Props) {
   const [playerCount, setPlayerCount] = useState(2);
+  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [showRules, setShowRules] = useState(false);
 
   return (
@@ -54,9 +62,37 @@ export default function Title({ onStartGame }: Props) {
           </p>
         </div>
 
+        <div className="flex flex-col gap-2 w-full">
+          <label className="text-xs font-medium text-[#71717A] uppercase tracking-wide text-center">
+            Difficulty
+          </label>
+          <div
+            className="flex rounded-lg border border-[#E4E4E7] overflow-hidden bg-white"
+            role="radiogroup"
+            aria-label="AI difficulty"
+          >
+            {DIFFICULTIES.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={difficulty === value}
+                onClick={() => setDifficulty(value)}
+                className={
+                  difficulty === value
+                    ? 'flex-1 py-2.5 text-sm font-semibold bg-[#6366F1] text-white transition-colors'
+                    : 'flex-1 py-2.5 text-sm text-[#71717A] hover:bg-[#F4F4F5] transition-colors'
+                }
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <button
           type="button"
-          onClick={() => onStartGame(playerCount)}
+          onClick={() => onStartGame(playerCount, difficulty)}
           className="w-full py-3 bg-[#6366F1] text-white rounded-lg font-semibold text-base hover:bg-[#4F46E5] active:bg-[#4338CA] transition-colors"
         >
           New game

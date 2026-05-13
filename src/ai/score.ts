@@ -1,16 +1,16 @@
 import type { Card } from '../engine/types';
+import type { AIWeights } from './types';
 import { rankIndex } from '../engine/sets';
 
-export function cardKeepValue(card: Card, hand: Card[]): number {
-  let score = 0;
-
+export function cardKeepValue(card: Card, hand: Card[], weights: AIWeights): number {
   if (card.rank === 'A') {
-    score += 5;
-    return score;
+    return weights.aceBonus;
   }
 
+  let score = 0;
+
   const sameRank = hand.filter((c) => c.id !== card.id && c.rank === card.rank).length;
-  score += sameRank;
+  score += sameRank * weights.sameRankBonus;
 
   const cardIdx = rankIndex(card.rank as Exclude<Card['rank'], 'A'>);
   const nearSameSuit = hand.filter((c) => {
@@ -19,16 +19,16 @@ export function cardKeepValue(card: Card, hand: Card[]): number {
     const cIdx = rankIndex(c.rank as Exclude<Card['rank'], 'A'>);
     return Math.abs(cIdx - cardIdx) <= 2;
   }).length;
-  score += nearSameSuit;
+  score += nearSameSuit * weights.sameSuitNearRankBonus;
 
   return score;
 }
 
-export function discardChoice(hand: Card[]): Card {
+export function discardChoice(hand: Card[], weights: AIWeights): Card {
   let worst = hand[0]!;
   let worstScore = Infinity;
   for (const card of hand) {
-    const s = cardKeepValue(card, hand);
+    const s = cardKeepValue(card, hand, weights);
     if (s < worstScore) {
       worstScore = s;
       worst = card;
