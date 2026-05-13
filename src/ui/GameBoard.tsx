@@ -99,10 +99,11 @@ export default function GameBoard() {
     clearSelection();
   }
 
-  function handleAcePickerSelect(role: AceRole) {
+  function handleAcePickerSelect(roles: AceRole[]) {
     if (!acePicker) return;
+    let aceIndex = 0;
     const cards = acePicker.pendingCards.map((c) =>
-      c.card.rank === 'A' ? { ...c, aceRole: role } : c,
+      c.card.rank === 'A' ? { ...c, aceRole: roles[aceIndex++]! } : c,
     );
     setAcePicker(null);
     tryPlaySet(cards, acePicker.ownerId);
@@ -279,7 +280,7 @@ export default function GameBoard() {
       )}
       {acePicker && (
         <AcePicker
-          options={acePicker.options.map((opts) => opts[0]!)}
+          options={acePicker.options}
           onSelect={handleAcePickerSelect}
           onCancel={() => setAcePicker(null)}
         />

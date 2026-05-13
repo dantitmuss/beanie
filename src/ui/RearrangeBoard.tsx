@@ -126,19 +126,20 @@ export default function RearrangeBoard() {
     setSelectedHandIds(new Set());
   }
 
-  function handleAcePickerSelect(role: AceRole) {
+  function handleAcePickerSelect(roles: AceRole[]) {
     if (!acePicker) return;
     setAcePicker(null);
 
+    let aceIndex = 0;
+    const applyRoles = (c: CardInSet) =>
+      c.card.rank === 'A' ? { ...c, aceRole: roles[aceIndex++]! } : c;
+
     if (acePicker.targetSetId === 'new') {
-      const cardsWithRole = acePicker.pendingCards.map((c) =>
-        c.card.rank === 'A' ? { ...c, aceRole: role } : c,
-      );
-      createSetFromHand(cardsWithRole, acePicker.targetOwnerId);
+      aceIndex = 0;
+      createSetFromHand(acePicker.pendingCards.map(applyRoles), acePicker.targetOwnerId);
     } else {
-      const pendingWithRole = acePicker.pendingCards.map((c) =>
-        c.card.rank === 'A' ? { ...c, aceRole: role } : c,
-      );
+      aceIndex = 0;
+      const pendingWithRole = acePicker.pendingCards.map(applyRoles);
       const targetSet = workingTable.find((s) => s.id === acePicker.targetSetId);
       if (!targetSet) return;
       updateSetCards(
@@ -357,7 +358,7 @@ export default function RearrangeBoard() {
 
       {acePicker && (
         <AcePicker
-          options={acePicker.options.map((opts) => opts[0]!)}
+          options={acePicker.options}
           onSelect={handleAcePickerSelect}
           onCancel={() => setAcePicker(null)}
         />
