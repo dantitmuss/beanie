@@ -1,0 +1,14 @@
+{
+  "takeDiscardCompletesSetBonus": 0,
+  "takeDiscardOpeningBonus": 0,
+  "takeDiscardPileSizeCap": 0,
+  "nearSetBonus": 0,
+  "sameRankBonus": 0.5,
+  "sameSuitNearRankBonus": 0.5,
+  "aceBonus": 3,
+  "staleDecay": 0,
+  "rearrangeMaxDepth": 0,
+  "attemptAceReplacement": false,
+  "mctsRollouts": 0,
+  "mctsRolloutDepth": 0
+}

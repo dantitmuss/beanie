@@ -2,7 +2,18 @@ import { create } from 'zustand';
 import type { CardInSet, CardSet, GameState } from '../engine/types';
 import { applyAction } from '../engine/actions';
 import { createInitialState, currentPlayer } from '../engine/state';
-import { computeAITurn } from '../ai/medium';
+import { makePolicy } from '../ai/policy';
+import { validateWeights } from '../ai/weights/schema';
+import type { AIPolicy, Difficulty } from '../ai/types';
+import easyData from '../ai/weights/easy.json';
+import mediumData from '../ai/weights/medium.json';
+import hardData from '../ai/weights/hard.json';
+
+const WEIGHTS = {
+  easy: validateWeights(easyData, 'easy'),
+  medium: validateWeights(mediumData, 'medium'),
+  hard: validateWeights(hardData, 'hard'),
+} as const;
 
 interface GameStore {
   state: GameState | null;
@@ -10,8 +21,9 @@ interface GameStore {
   selectedHandCardIds: Set<string>;
   handOrder: string[];
   aiRunning: boolean;
+  aiPolicy: AIPolicy | null;
 
-  startGame: (playerCount: number) => void;
+  startGame: (playerCount: number, difficulty: Difficulty) => void;
   resetToTitle: () => void;
   dispatch: (action: Parameters<typeof applyAction>[1]) => void;
   toast: (msg: string) => void;
@@ -35,15 +47,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
   selectedHandCardIds: new Set(),
   handOrder: [],
   aiRunning: false,
+  aiPolicy: null,
 
-  startGame(playerCount) {
+  startGame(playerCount, difficulty) {
     const names = ['You', 'Aria', 'Bo', 'Cleo'];
     const state = createInitialState(names.slice(0, playerCount), Date.now());
-    set({ state, selectedHandCardIds: new Set(), toastMessage: null, aiRunning: false, handOrder: [] });
+    const aiPolicy = makePolicy(difficulty, WEIGHTS[difficulty]);
+    set({ state, aiPolicy, selectedHandCardIds: new Set(), toastMessage: null, aiRunning: false, handOrder: [] });
   },
 
   resetToTitle() {
-    set({ state: null, selectedHandCardIds: new Set(), toastMessage: null, aiRunning: false, handOrder: [] });
+    set({ state: null, aiPolicy: null, selectedHandCardIds: new Set(), toastMessage: null, aiRunning: false, handOrder: [] });
   },
 
   dispatch(action) {
@@ -99,16 +113,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
 }));
 
 function maybeRunAI() {
-  const { state, aiRunning } = useGameStore.getState();
+  const { state, aiRunning, aiPolicy } = useGameStore.getState();
   if (!state || state.phase === 'gameOver' || state.phase === 'rearranging') return;
-  if (aiRunning) return;
+  if (aiRunning || !aiPolicy) return;
 
   const player = currentPlayer(state);
   if (!player.isAI) return;
 
   useGameStore.setState({ aiRunning: true });
 
-  const actions = computeAITurn(state, player.id);
+  const actions = aiPolicy.computeTurn(state, player.id);
   let delay = 400;
 
   for (const action of actions) {
