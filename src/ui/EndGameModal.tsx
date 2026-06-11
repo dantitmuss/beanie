@@ -1,10 +1,23 @@
 interface Props {
   winnerName: string;
   isHumanWinner: boolean;
-  onPlayAgain: () => void;
+  /** Primary action; omit to show only a waiting note (mp non-host). */
+  onPlayAgain?: () => void;
+  playAgainLabel?: string;
+  /** Shown instead of the primary button when onPlayAgain is absent. */
+  waitingNote?: string;
+  /** Secondary action (mp: leave the room). */
+  onLeave?: () => void;
 }
 
-export default function EndGameModal({ winnerName, isHumanWinner, onPlayAgain }: Props) {
+export default function EndGameModal({
+  winnerName,
+  isHumanWinner,
+  onPlayAgain,
+  playAgainLabel = 'Play again',
+  waitingNote,
+  onLeave,
+}: Props) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
@@ -26,14 +39,30 @@ export default function EndGameModal({ winnerName, isHumanWinner, onPlayAgain }:
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onPlayAgain}
-          autoFocus
-          className="w-full py-3 bg-[#6366F1] text-white rounded-lg font-medium hover:bg-[#4F46E5] transition-colors"
-        >
-          Play again
-        </button>
+        {onPlayAgain ? (
+          <button
+            type="button"
+            onClick={onPlayAgain}
+            autoFocus
+            className="w-full py-3 bg-[#6366F1] text-white rounded-lg font-medium hover:bg-[#4F46E5] transition-colors"
+          >
+            {playAgainLabel}
+          </button>
+        ) : (
+          waitingNote && (
+            <p className="text-sm text-[#71717A] animate-pulse">{waitingNote}</p>
+          )
+        )}
+
+        {onLeave && (
+          <button
+            type="button"
+            onClick={onLeave}
+            className="text-sm text-[#71717A] hover:text-[#DC2626] transition-colors -mt-2"
+          >
+            Leave room
+          </button>
+        )}
       </div>
     </div>
   );

@@ -11,9 +11,10 @@ const DIFFICULTIES: { value: Difficulty; label: string }[] = [
 
 interface Props {
   onStartGame: (playerCount: number, difficulty: Difficulty) => void;
+  onPlayFriends: () => void;
 }
 
-export default function Title({ onStartGame }: Props) {
+export default function Title({ onStartGame, onPlayFriends }: Props) {
   const [playerCount, setPlayerCount] = useState(2);
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [showRules, setShowRules] = useState(false);
@@ -96,6 +97,14 @@ export default function Title({ onStartGame }: Props) {
           className="w-full py-3 bg-[#6366F1] text-white rounded-lg font-semibold text-base hover:bg-[#4F46E5] active:bg-[#4338CA] transition-colors"
         >
           New game
+        </button>
+
+        <button
+          type="button"
+          onClick={onPlayFriends}
+          className="w-full py-3 bg-white text-[#0A0A0A] border border-[#E4E4E7] rounded-lg font-semibold text-base hover:bg-[#F4F4F5] transition-colors"
+        >
+          Play with friends
         </button>
 
         <button

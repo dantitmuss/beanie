@@ -4,6 +4,7 @@ export type GamePhase = 'awaitingDraw' | 'inTurn' | 'rearranging' | 'gameOver';
 
 interface Props {
   phase: GamePhase;
+  canDraw?: boolean;
   canTakeDiscard: boolean;
   canEndTurn: boolean;
   canRearrange: boolean;
@@ -49,6 +50,7 @@ function Btn({
 
 export default function ActionBar({
   phase,
+  canDraw = true,
   canTakeDiscard,
   canEndTurn,
   canRearrange,
@@ -71,7 +73,7 @@ export default function ActionBar({
     >
       {phase === 'awaitingDraw' && (
         <>
-          <Btn label="Draw" onClick={onDraw} primary />
+          <Btn label="Draw" onClick={onDraw} disabled={!canDraw} primary />
           <Btn label="Take discard pile" onClick={onTakeDiscard} disabled={!canTakeDiscard} />
         </>
       )}

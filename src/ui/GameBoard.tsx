@@ -12,6 +12,7 @@ import Toast from './Toast';
 import RearrangeBoard from './RearrangeBoard';
 import HandExpandModal from './HandExpandModal';
 import { useGameStore } from '../store/gameStore';
+import { useMpStore } from '../multiplayer/store';
 import { inferAceRoles, isValidSet } from '../engine/sets';
 import type { AceRole, CardInSet, CardSet } from '../engine/types';
 
@@ -27,7 +28,9 @@ export default function GameBoard() {
     clearSelection,
     resetToTitle,
     aiRunning,
+    mode,
   } = useGameStore();
+  const mpPlayers = useMpStore((s) => s.players);
 
   const [showRules, setShowRules] = useState(false);
   const [showHandExpand, setShowHandExpand] = useState(false);
@@ -128,7 +131,15 @@ export default function GameBoard() {
 
   const canEndTurn = state.phase === 'inTurn' && isHumanTurn && selectedHandCardIds.size === 1;
 
-  if (state.phase === 'rearranging') {
+  function isDisconnected(playerId: string): boolean {
+    if (mode !== 'mp') return false;
+    const lobbyPlayer = mpPlayers.find((p) => p.engineId === playerId);
+    return lobbyPlayer ? !lobbyPlayer.connected : false;
+  }
+
+  // Only the rearranging player gets the rearrange board; everyone else keeps
+  // watching the normal board until the rearrange is committed or cancelled.
+  if (state.phase === 'rearranging' && isHumanTurn) {
     return (
       <div className="flex flex-col h-screen bg-[#FAFAFA] overflow-hidden">
         <Header onRulesClick={() => setShowRules(true)} onRestartClick={resetToTitle} aiThinking={aiRunning} />
@@ -160,6 +171,9 @@ export default function GameBoard() {
                       <span className="w-2 h-2 rounded-full bg-[#6366F1] shrink-0" aria-label="Current turn" />
                     )}
                     <span className="text-xs font-medium text-[#71717A]">{opp.name}</span>
+                    {isDisconnected(opp.id) && (
+                      <span className="text-[10px] text-[#A1A1AA] italic">disconnected</span>
+                    )}
                   </div>
                   <OpponentArea player={opp} sets={oppSets} compact />
                 </div>
@@ -258,7 +272,8 @@ export default function GameBoard() {
       </div>
 
       <ActionBar
-        phase={state.phase}
+        phase={state.phase === 'rearranging' ? 'inTurn' : state.phase}
+        canDraw={isHumanTurn}
         canTakeDiscard={state.discardPile.length > 0 && isHumanTurn}
         canEndTurn={canEndTurn}
         canRearrange={human.hasOpened && state.phase === 'inTurn' && isHumanTurn}

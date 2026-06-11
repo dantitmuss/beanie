@@ -11,12 +11,15 @@
     "test": "vitest run --config vitest.config.ts",
     "test:watch": "vitest --config vitest.config.ts",
     "ai:simulate": "tsx scripts/simulate.ts",
-    "ai:tune": "tsx scripts/tune.ts"
+    "ai:tune": "tsx scripts/tune.ts",
+    "mp:dev": "partykit dev",
+    "mp:deploy": "partykit deploy"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^8.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "partysocket": "^1.1.19",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tinyrainbow": "^3.1.0",
@@ -35,6 +38,7 @@
     "eslint": "^9.15.0",
     "iconv-lite": "^0.7.2",
     "jsdom": "^25.0.1",
+    "partykit": "^0.0.115",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
     "tsx": "^4.19.2",

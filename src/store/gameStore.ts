@@ -17,6 +17,10 @@ const WEIGHTS = {
 
 interface GameStore {
   state: GameState | null;
+  /** 'local' = single-player vs AI; 'mp' = state is server-owned, actions go over the wire. */
+  mode: 'local' | 'mp';
+  mpSend: ((action: Parameters<typeof applyAction>[1]) => void) | null;
+  mpLeave: (() => void) | null;
   toastMessage: string | null;
   selectedHandCardIds: Set<string>;
   handOrder: string[];
@@ -43,6 +47,9 @@ function reconcile(handOrder: string[], hand: { id: string }[]): string[] {
 
 export const useGameStore = create<GameStore>((set, get) => ({
   state: null,
+  mode: 'local',
+  mpSend: null,
+  mpLeave: null,
   toastMessage: null,
   selectedHandCardIds: new Set(),
   handOrder: [],
@@ -53,16 +60,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const names = ['You', 'Aria', 'Bo', 'Cleo'];
     const state = createInitialState(names.slice(0, playerCount), Date.now());
     const aiPolicy = makePolicy(difficulty, WEIGHTS[difficulty]);
-    set({ state, aiPolicy, selectedHandCardIds: new Set(), toastMessage: null, aiRunning: false, handOrder: [] });
+    set({ state, mode: 'local', aiPolicy, selectedHandCardIds: new Set(), toastMessage: null, aiRunning: false, handOrder: [] });
   },
 
   resetToTitle() {
+    const { mode, mpLeave } = get();
+    if (mode === 'mp') {
+      // mpLeave (multiplayer/client.ts leaveRoom) resets both stores itself.
+      mpLeave?.();
+      return;
+    }
     set({ state: null, aiPolicy: null, selectedHandCardIds: new Set(), toastMessage: null, aiRunning: false, handOrder: [] });
   },
 
   dispatch(action) {
-    const { state } = get();
+    const { state, mode, mpSend } = get();
     if (!state) return;
+    if (mode === 'mp') {
+      // Server is authoritative: send the intent and wait for the broadcast
+      // GAME_STATE (or an ERROR toast) instead of applying locally.
+      mpSend?.(action);
+      return;
+    }
     try {
       const next = applyAction(state, action);
       set({ state: next });

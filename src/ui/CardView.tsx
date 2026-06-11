@@ -1,4 +1,5 @@
 import { cn } from '../lib/classnames';
+import CardBack from './CardBack';
 import type { CardInSet } from '../engine/types';
 
 interface Props {
@@ -23,6 +24,13 @@ export default function CardView({
   'aria-label': ariaLabel,
 }: Props) {
   const { card, aceRole } = cardInSet;
+
+  // Multiplayer redaction replaces opponent cards with { id, hidden } stubs;
+  // if one ever reaches a face-up renderer, show a card back instead.
+  if (!card.rank || !card.suit) {
+    return <CardBack compact={compact} />;
+  }
+
   const displaySuit = card.suit;
   const isRed = displaySuit === '♥' || displaySuit === '♦';
 
