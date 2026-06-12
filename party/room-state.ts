@@ -4,6 +4,7 @@ import { createInitialState, currentPlayer } from '../src/engine/state';
 import type { GameState } from '../src/engine/types';
 import type { ErrorCode, LobbyPlayer, RoomPhase } from './messages';
 import { MAX_PLAYERS } from './messages';
+import { sanitizeAction } from './sanitize';
 
 export { MAX_PLAYERS };
 export const RECONNECT_WINDOW_MS = 60_000;
@@ -58,6 +59,12 @@ export class BeanieRoom {
   }
 
   hello(sessionId: string, displayName: string, intent: 'create' | 'join'): HelloResult {
+    // Fields come straight off the wire; a hand-crafted client can send anything.
+    if (typeof sessionId !== 'string' || sessionId.length === 0 || sessionId.length > 64) {
+      return err('INVALID', 'Malformed session');
+    }
+    if (typeof displayName !== 'string') displayName = '';
+
     const existing = this.seatForSession(sessionId);
     if (existing) {
       existing.connected = true;
@@ -110,10 +117,17 @@ export class BeanieRoom {
     const seat = this.seats.find((s) => s.id === bySeatId);
     if (!seat?.engineId) return err('INVALID', 'You are not seated in this game');
     if (currentPlayer(this.game).id !== seat.engineId) return err('INVALID', 'Not your turn');
-    if (action.type === 'AI_TURN') return err('INVALID', 'Unsupported action');
+    if (!action || typeof action !== 'object' || action.type === 'AI_TURN') {
+      return err('INVALID', 'Unsupported action');
+    }
+
+    // Replace client-submitted card objects with the server's canonical cards
+    // so forged ranks/suits can't reach the engine.
+    const sanitized = sanitizeAction(this.game, action);
+    if (!sanitized.ok) return err('INVALID', sanitized.message);
 
     try {
-      this.game = applyAction(this.game, action);
+      this.game = applyAction(this.game, sanitized.action);
     } catch (e) {
       return err('INVALID', e instanceof Error ? e.message : 'Invalid move');
     }
